@@ -202,6 +202,14 @@
   </footer>
 
   <script>
+    // Ensure sample images load on page ready
+    document.addEventListener('DOMContentLoaded', () => {
+      const before = document.getElementById('sample-before');
+      const after = document.getElementById('sample-after');
+      if (before) before.src = 'images/aiMov.jpg?' + Date.now();
+      if (after) after.src = 'images/aiMov.jpg?' + Date.now();
+    });
+
     // Sample gallery interaction
     document.querySelectorAll('#sample-gallery .style-card').forEach(card => {
       card.addEventListener('click', () => {
@@ -209,7 +217,8 @@
         card.classList.add('selected');
         const result = card.dataset.result;
         const name = card.dataset.name;
-        document.getElementById('sample-after').src = result;
+        const afterImg = document.getElementById('sample-after');
+        if (afterImg) afterImg.src = result + '?' + Date.now();
         document.getElementById('sample-style-name').textContent = name;
       });
     });
