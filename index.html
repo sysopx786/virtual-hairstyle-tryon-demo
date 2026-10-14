@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Hairstyle Try-On Demo</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --paper: #f4efe8;
+      --ink: #12100e;
+      --gold: #f5c518;
+      --oxblood: #9b2c2c;
+      --green: #22c55e;
+      --card: #1a1816;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--paper);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(180deg, #1a1816 0%, #0f0f0f 100%);
+      padding: 2rem 1rem;
+      text-align: center;
+      border-bottom: 3px solid var(--gold);
+    }
+    h1 { font-size: 2.2rem; color: var(--gold); margin-bottom: 0.5rem; }
+    .subtitle { opacity: 0.8; max-width: 600px; margin: 0 auto; }
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.6rem; margin-bottom: 1rem; color: var(--gold); }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .style-card {
+      background: var(--card);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .style-card:hover, .style-card.selected {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+    .style-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+    .style-card p { padding: 0.6rem; text-align: center; font-size: 0.9rem; }
+    .preview-area {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    .photo-box, .result-box {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      flex: 1;
+      min-width: 280px;
+      max-width: 420px;
+    }
+    .photo-box img, .result-box img {
+      width: 100%;
+      border-radius: 8px;
+      max-height: 500px;
+      object-fit: contain;
+      background: #222;
+    }
+    .upload-zone {
+      border: 2px dashed var(--gold);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin: 1rem 0;
+      background: rgba(245, 197, 24, 0.05);
+    }
+    button, .btn {
+      background: var(--gold);
+      color: var(--ink);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 0.5rem;
+    }
+    button:hover { background: #e6b50e; }
+    #camera { display: none; width: 100%; border-radius: 8px; }
+    .note {
+      background: #2a2520;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      border-left: 4px solid var(--gold);
+    }
+    footer { text-align: center; padding: 2rem; opacity: 0.6; font-size: 0.85rem; }
+    @media (max-width: 700px) {
+      .preview-area { flex-direction: column; align-items: center; }
+      h1 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>✂️ Virtual Hairstyle Try-On</h1>
+    <p class="subtitle">Pick a style, upload your photo, and see how it could look. Prototype demo for barbershop clients.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. Sample Try-On (AI-generated examples)</h2>
+      <p>Click a style to see a photorealistic result on the sample model. These were generated with AI image models.</p>
+      <div class="gallery" id="sample-gallery">
+        <div class="style-card" data-result="images/PQqze.jpg" data-name="Skin Fade + Beard">
+          <img src="images/PQqze.jpg" alt="Skin fade">
+          <p>Skin Fade</p>
+        </div>
+        <div class="style-card" data-result="images/AhP3b.jpg" data-name="Textured Crop">
+          <img src="images/AhP3b.jpg" alt="Textured crop">
+          <p>Textured Crop</p>
+        </div>
+        <div class="style-card" data-result="images/FMPbW.jpg" data-name="Buzz Cut">
+          <img src="images/FMPbW.jpg" alt="Buzz cut">
+          <p>Buzz Cut</p>
+        </div>
+        <div class="style-card" data-result="images/CWg6u.jpg" data-name="High Fade">
+          <img src="images/CWg6u.jpg" alt="High fade">
+          <p>High Fade</p>
+        </div>
+      </div>
+      <div class="preview-area">
+        <div class="photo-box">
+          <h3>Before</h3>
+          <img id="sample-before" src="images/aiMov.jpg" alt="Original">
+        </div>
+        <div class="result-box">
+          <h3>After: <span id="sample-style-name">Select a style</span></h3>
+          <img id="sample-after" src="images/aiMov.jpg" alt="Result">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Try It With Your Photo</h2>
+      <p>Upload a clear front-facing photo or use your camera. Then pick a style.</p>
+      <div class="upload-zone">
+        <input type="file" id="file-input" accept="image/*" style="display:none;">
+        <button onclick="document.getElementById('file-input').click()">Upload Photo</button>
+        <button id="cam-btn">Use Camera</button>
+        <video id="camera" autoplay playsinline></video>
+        <button id="snap-btn" style="display:none;">Capture</button>
+      </div>
+      <div class="preview-area" id="user-preview" style="display:none;">
+        <div class="photo-box">
+          <h3>Your Photo</h3>
+          <img id="user-photo" alt="Your photo">
+        </div>
+        <div class="result-box">
+          <h3>Selected Style Preview</h3>
+          <img id="user-style" alt="Selected style">
+          <div class="note">
+            <strong>Prototype note:</strong> This demo shows your photo next to the chosen style. In a full production system, generative AI (e.g. image editing models) would blend the hairstyle realistically onto your face while preserving identity, lighting, and expression.
+          </div>
+        </div>
+      </div>
+      <div class="gallery" id="user-gallery">
+        <div class="style-card" data-src="images/PQqze.jpg">
+          <img src="images/PQqze.jpg" alt="Skin fade">
+          <p>Skin Fade</p>
+        </div>
+        <div class="style-card" data-src="images/AhP3b.jpg">
+          <img src="images/AhP3b.jpg" alt="Textured">
+          <p>Textured Crop</p>
+        </div>
+        <div class="style-card" data-src="images/FMPbW.jpg">
+          <img src="images/FMPbW.jpg" alt="Buzz">
+          <p>Buzz Cut</p>
+        </div>
+        <div class="style-card" data-src="images/CWg6u.jpg">
+          <img src="images/CWg6u.jpg" alt="High fade">
+          <p>High Fade</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Standalone prototype · Built for hairstyle visualization before the barber chair
+  </footer>
+
+  <script>
+    // Sample gallery interaction
+    document.querySelectorAll('#sample-gallery .style-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#sample-gallery .style-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const result = card.dataset.result;
+        const name = card.dataset.name;
+        document.getElementById('sample-after').src = result;
+        document.getElementById('sample-style-name').textContent = name;
+      });
+    });
+
+    // User photo upload
+    const fileInput = document.getElementById('file-input');
+    const userPhoto = document.getElementById('user-photo');
+    const userPreview = document.getElementById('user-preview');
+    const userStyle = document.getElementById('user-style');
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        userPhoto.src = ev.target.result;
+        userPreview.style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // User style selection
+    document.querySelectorAll('#user-gallery .style-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#user-gallery .style-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        userStyle.src = card.dataset.src;
+      });
+    });
+
+    // Camera
+    const camBtn = document.getElementById('cam-btn');
+    const camera = document.getElementById('camera');
+    const snapBtn = document.getElementById('snap-btn');
+    let stream = null;
+
+    camBtn.addEventListener('click', async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        camera.srcObject = stream;
+        camera.style.display = 'block';
+        snapBtn.style.display = 'inline-block';
+        camBtn.textContent = 'Stop Camera';
+      } catch (err) {
+        alert('Camera access denied or not available.');
+      }
+    });
+
+    snapBtn.addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = camera.videoWidth;
+      canvas.height = camera.videoHeight;
+      canvas.getContext('2d').drawImage(camera, 0, 0);
+      userPhoto.src = canvas.toDataURL('image/jpeg');
+      userPreview.style.display = 'flex';
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        camera.style.display = 'none';
+        snapBtn.style.display = 'none';
+        camBtn.textContent = 'Use Camera';
+      }
+    });
+  </script>
+</body>
+</html>
