@@ -13,7 +13,13 @@ Standalone prototype for a virtual hairstyle try-on experience.
 2. Add the `images/` folder with the style photos (aiMov.jpg, PQqze.jpg, AhP3b.jpg, FMPbW.jpg, CWg6u.jpg) next to `index.html`
 3. Open `index.html` in a browser
 
+## Live site
+Once GitHub Pages finishes deploying, the site should be available at:
+https://sysopx786.github.io/virtual-hairstyle-tryon-demo/
+
 ## Notes
 This is a UI prototype. Realistic hairstyle blending on arbitrary user photos requires a generative AI image editing backend (e.g. FLUX, Stable Diffusion inpainting, or similar).
 
 Created for barbershop client visualization.
+
+*Last updated to trigger Pages rebuild.*
