@@ -249,7 +249,7 @@
     <div class="api-key-box">
       <label for="api-key">Replicate API Token (required for generation)</label>
       <input type="password" id="api-key" placeholder="r8_...">
-      <div class="hint">Get a free token at <a href="https://replicate.com/account/api-tokens" target="_blank" style="color:var(--gold);">replicate.com/account/api-tokens</a>. Stored only in your browser. Uses a temporary CORS proxy for this static demo.</div>
+      <div class="hint">Get a free token at <a href="https://replicate.com/account/api-tokens" target="_blank" style="color:var(--gold);">replicate.com/account/api-tokens</a>. Stored only in your browser.</div>
     </div>
 
     <div class="upload-box" id="upload-box">
@@ -317,11 +317,11 @@
   </main>
 
   <footer>
-    Real AI generation via Replicate FLUX Kontext · Key stays in your browser · Demo uses temporary CORS proxy
+    Real AI generation via Replicate FLUX Kontext · Key stays in your browser
   </footer>
 
   <script>
-    const PROXY = 'https://corsproxy.io/?';
+    const PROXY_BASE = 'https://api.allorigins.win/raw?url=';
     let userImageData = null;
     let selectedStyle = null;
     let selectedColor = 'natural';
@@ -459,8 +459,9 @@
           }
         };
 
-        // Create prediction via CORS proxy
-        const createRes = await fetch(PROXY + encodeURIComponent('https://api.replicate.com/v1/predictions'), {
+        // Create prediction via allorigins proxy
+        const createUrl = PROXY_BASE + encodeURIComponent('https://api.replicate.com/v1/predictions');
+        const createRes = await fetch(createUrl, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
@@ -482,7 +483,8 @@
         let outputUrl = null;
         for (let i = 0; i < 60; i++) {
           await new Promise(r => setTimeout(r, 2000));
-          const pollRes = await fetch(PROXY + encodeURIComponent(`https://api.replicate.com/v1/predictions/${predictionId}`), {
+          const pollUrl = PROXY_BASE + encodeURIComponent(`https://api.replicate.com/v1/predictions/${predictionId}`);
+          const pollRes = await fetch(pollUrl, {
             headers: { 'Authorization': `Bearer ${apiKey}` }
           });
           const status = await pollRes.json();
