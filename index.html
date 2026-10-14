@@ -51,7 +51,33 @@
       margin-bottom: 1rem;
       color: var(--text);
     }
-    /* Upload */
+    .api-key-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .api-key-box label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .api-key-box input {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .api-key-box .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
     .upload-box {
       background: var(--surface);
       border: 2px dashed var(--border);
@@ -84,10 +110,9 @@
       border: 1px solid var(--border);
     }
     .btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     #camera { display: none; width: 100%; max-width: 400px; border-radius: 8px; margin: 1rem auto; }
     #snap-btn { display: none; }
-
-    /* Gender */
     .gender-toggle {
       display: flex;
       gap: 0.5rem;
@@ -108,8 +133,6 @@
       color: #111;
       border-color: var(--gold);
     }
-
-    /* Styles */
     .styles-scroll {
       display: flex;
       gap: 1rem;
@@ -143,8 +166,6 @@
       font-size: 0.9rem;
       font-weight: 500;
     }
-
-    /* Colors */
     .colors {
       display: flex;
       gap: 0.6rem;
@@ -164,8 +185,6 @@
       background: rgba(245, 197, 24, 0.15);
       color: var(--gold);
     }
-
-    /* Result */
     .result-area {
       background: var(--surface);
       border-radius: 16px;
@@ -199,6 +218,11 @@
       padding: 2rem;
       font-size: 1.1rem;
     }
+    .error {
+      color: #f87171;
+      padding: 1rem;
+      display: none;
+    }
     .actions {
       margin-top: 1.2rem;
     }
@@ -218,14 +242,19 @@
 <body>
   <header>
     <h1>✂️ Virtual Hairstyle Try-On</h1>
-    <p class="tagline">Upload a photo and preview new styles instantly. Built for barbershop clients.</p>
+    <p class="tagline">Upload a photo and generate a real new look with AI. Powered by FLUX Kontext.</p>
   </header>
 
   <main>
-    <!-- Upload -->
+    <div class="api-key-box">
+      <label for="api-key">Replicate API Token (required for generation)</label>
+      <input type="password" id="api-key" placeholder="r8_...">
+      <div class="hint">Get a free token at <a href="https://replicate.com/account/api-tokens" target="_blank" style="color:var(--gold);">replicate.com/account/api-tokens</a>. Stored only in your browser. Uses a temporary CORS proxy for this static demo.</div>
+    </div>
+
     <div class="upload-box" id="upload-box">
       <h3>Upload Your Photo</h3>
-      <p>Clear front-facing photo · JPEG, PNG, WebP · up to 10 MB</p>
+      <p>Clear front-facing photo · JPEG, PNG, WebP · under 1 MB recommended for data URI</p>
       <input type="file" id="file-input" accept="image/*" style="display:none;">
       <button class="btn" onclick="document.getElementById('file-input').click()">Upload Photo</button>
       <button class="btn secondary" id="cam-btn">Use Camera</button>
@@ -233,54 +262,50 @@
       <button class="btn" id="snap-btn">Capture</button>
     </div>
 
-    <!-- Gender -->
     <div class="gender-toggle">
       <button class="gender-btn active" data-gender="male">Male</button>
       <button class="gender-btn" data-gender="female">Female</button>
     </div>
 
-    <!-- Styles -->
     <h2 class="section-title">Choose a Style</h2>
     <div class="styles-scroll" id="styles">
-      <div class="style-card" data-style="Skin Fade" data-img="images/PQqze.jpg">
+      <div class="style-card" data-style="skin fade" data-img="images/PQqze.jpg">
         <img src="images/PQqze.jpg" alt="Skin Fade">
         <div class="name">Skin Fade</div>
       </div>
-      <div class="style-card" data-style="Textured Crop" data-img="images/AhP3b.jpg">
+      <div class="style-card" data-style="textured crop" data-img="images/AhP3b.jpg">
         <img src="images/AhP3b.jpg" alt="Textured Crop">
         <div class="name">Textured Crop</div>
       </div>
-      <div class="style-card" data-style="Buzz Cut" data-img="images/FMPbW.jpg">
+      <div class="style-card" data-style="buzz cut" data-img="images/FMPbW.jpg">
         <img src="images/FMPbW.jpg" alt="Buzz Cut">
         <div class="name">Buzz Cut</div>
       </div>
-      <div class="style-card" data-style="High Fade" data-img="images/CWg6u.jpg">
+      <div class="style-card" data-style="high fade" data-img="images/CWg6u.jpg">
         <img src="images/CWg6u.jpg" alt="High Fade">
         <div class="name">High Fade</div>
       </div>
     </div>
 
-    <!-- Colors -->
     <h2 class="section-title">Hair Color</h2>
     <div class="colors" id="colors">
-      <div class="color-chip selected" data-color="Natural">Natural</div>
-      <div class="color-chip" data-color="Jet Black">Jet Black</div>
-      <div class="color-chip" data-color="Dark Brown">Dark Brown</div>
-      <div class="color-chip" data-color="Blonde">Blonde</div>
-      <div class="color-chip" data-color="Highlights">Highlights</div>
+      <div class="color-chip selected" data-color="natural">Natural</div>
+      <div class="color-chip" data-color="jet black">Jet Black</div>
+      <div class="color-chip" data-color="dark brown">Dark Brown</div>
+      <div class="color-chip" data-color="blonde">Blonde</div>
+      <div class="color-chip" data-color="highlights">Highlights</div>
     </div>
 
-    <!-- Generate -->
     <div style="text-align:center; margin: 1.5rem 0;">
-      <button class="btn" id="generate-btn" style="padding: 1rem 2rem; font-size: 1.1rem;">Generate Preview</button>
+      <button class="btn" id="generate-btn" style="padding: 1rem 2rem; font-size: 1.1rem;">Generate with AI</button>
     </div>
 
-    <!-- Result -->
     <div class="result-area">
       <h3>Your New Look</h3>
-      <div class="loading" id="loading">Generating your new hairstyle…</div>
+      <div class="loading" id="loading">Generating your new hairstyle… (usually 10–30 seconds)</div>
+      <div class="error" id="error"></div>
       <div class="result-preview" id="result-preview">
-        <div class="placeholder" id="placeholder">Upload a photo and select a style to see your result here</div>
+        <div class="placeholder" id="placeholder">Upload a photo, select a style, and click Generate</div>
         <img id="user-photo" alt="Your photo" style="display:none;">
         <img id="result-img" alt="Result" style="display:none;">
       </div>
@@ -292,24 +317,35 @@
   </main>
 
   <footer>
-    Standalone prototype · Real generative AI requires a backend API key
+    Real AI generation via Replicate FLUX Kontext · Key stays in your browser · Demo uses temporary CORS proxy
   </footer>
 
   <script>
+    const PROXY = 'https://corsproxy.io/?';
     let userImageData = null;
     let selectedStyle = null;
-    let selectedColor = 'Natural';
+    let selectedColor = 'natural';
+    let selectedGender = 'male';
     let stream = null;
 
-    // Gender toggle
+    // Load saved API key
+    const apiKeyInput = document.getElementById('api-key');
+    const savedKey = localStorage.getItem('replicate_api_key');
+    if (savedKey) apiKeyInput.value = savedKey;
+    apiKeyInput.addEventListener('change', () => {
+      localStorage.setItem('replicate_api_key', apiKeyInput.value.trim());
+    });
+
+    // Gender
     document.querySelectorAll('.gender-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        selectedGender = btn.dataset.gender;
       });
     });
 
-    // Style selection
+    // Style
     document.querySelectorAll('.style-card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
@@ -318,7 +354,7 @@
       });
     });
 
-    // Color selection
+    // Color
     document.querySelectorAll('.color-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('selected'));
@@ -332,6 +368,9 @@
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
+      if (file.size > 900000) {
+        alert('Please use an image under 1 MB for best results with data URI.');
+      }
       const reader = new FileReader();
       reader.onload = (ev) => {
         userImageData = ev.target.result;
@@ -360,7 +399,7 @@
       canvas.width = camera.videoWidth;
       canvas.height = camera.videoHeight;
       canvas.getContext('2d').drawImage(camera, 0, 0);
-      userImageData = canvas.toDataURL('image/jpeg');
+      userImageData = canvas.toDataURL('image/jpeg', 0.8);
       showUserPhoto();
       if (stream) {
         stream.getTracks().forEach(t => t.stop());
@@ -377,8 +416,13 @@
       document.getElementById('placeholder').style.display = 'none';
     }
 
-    // Generate (prototype: shows selected style reference until real API is wired)
-    document.getElementById('generate-btn').addEventListener('click', () => {
+    // Generate
+    document.getElementById('generate-btn').addEventListener('click', async () => {
+      const apiKey = apiKeyInput.value.trim();
+      if (!apiKey) {
+        alert('Please enter your Replicate API token.');
+        return;
+      }
       if (!userImageData) {
         alert('Please upload a photo first.');
         return;
@@ -389,23 +433,82 @@
       }
 
       const loading = document.getElementById('loading');
+      const errorEl = document.getElementById('error');
       const resultImg = document.getElementById('result-img');
       const actions = document.getElementById('actions');
+      const genBtn = document.getElementById('generate-btn');
 
       loading.style.display = 'block';
+      errorEl.style.display = 'none';
       resultImg.style.display = 'none';
       actions.style.display = 'none';
+      genBtn.disabled = true;
 
-      // Simulate generation delay
-      setTimeout(() => {
-        // For now, show the matching sample style image as a visual stand-in
-        const styleCard = document.querySelector(`.style-card[data-style="${selectedStyle}"]`);
-        const styleSrc = styleCard ? styleCard.dataset.img : 'images/aiMov.jpg';
-        resultImg.src = styleSrc;
+      try {
+        const haircutPrompt = selectedStyle;
+        const colorPrompt = selectedColor === 'natural' ? 'natural' : selectedColor;
+
+        const payload = {
+          version: 'flux-kontext-apps/change-haircut',
+          input: {
+            input_image: userImageData,
+            haircut: haircutPrompt,
+            hair_color: colorPrompt,
+            gender: selectedGender,
+            aspect_ratio: 'match_input_image'
+          }
+        };
+
+        // Create prediction via CORS proxy
+        const createRes = await fetch(PROXY + encodeURIComponent('https://api.replicate.com/v1/predictions'), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!createRes.ok) {
+          const errText = await createRes.text();
+          throw new Error(`API error ${createRes.status}: ${errText}`);
+        }
+
+        const prediction = await createRes.json();
+        const predictionId = prediction.id;
+        if (!predictionId) throw new Error('No prediction ID returned');
+
+        // Poll for result
+        let outputUrl = null;
+        for (let i = 0; i < 60; i++) {
+          await new Promise(r => setTimeout(r, 2000));
+          const pollRes = await fetch(PROXY + encodeURIComponent(`https://api.replicate.com/v1/predictions/${predictionId}`), {
+            headers: { 'Authorization': `Bearer ${apiKey}` }
+          });
+          const status = await pollRes.json();
+          if (status.status === 'succeeded') {
+            outputUrl = status.output;
+            break;
+          }
+          if (status.status === 'failed' || status.status === 'canceled') {
+            throw new Error(status.error || 'Generation failed');
+          }
+        }
+
+        if (!outputUrl) throw new Error('Timed out waiting for result');
+
+        // Handle output (usually a string URL or array)
+        const finalUrl = Array.isArray(outputUrl) ? outputUrl[0] : outputUrl;
+        resultImg.src = finalUrl;
         resultImg.style.display = 'block';
-        loading.style.display = 'none';
         actions.style.display = 'block';
-      }, 1500);
+      } catch (err) {
+        errorEl.textContent = 'Error: ' + err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        loading.style.display = 'none';
+        genBtn.disabled = false;
+      }
     });
 
     // Download
@@ -414,7 +517,7 @@
       if (!img.src) return;
       const a = document.createElement('a');
       a.href = img.src;
-      a.download = 'hairstyle-preview.jpg';
+      a.download = 'hairstyle-result.jpg';
       a.click();
     });
 
@@ -427,6 +530,7 @@
       document.getElementById('result-img').style.display = 'none';
       document.getElementById('placeholder').style.display = 'block';
       document.getElementById('actions').style.display = 'none';
+      document.getElementById('error').style.display = 'none';
       fileInput.value = '';
     });
   </script>
