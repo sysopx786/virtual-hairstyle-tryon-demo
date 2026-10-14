@@ -222,6 +222,8 @@
       color: #f87171;
       padding: 1rem;
       display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
     .actions {
       margin-top: 1.2rem;
@@ -321,7 +323,7 @@
   </footer>
 
   <script>
-    const PROXY_BASE = 'https://api.allorigins.win/raw?url=';
+    const PROXY_BASE = 'https://api.cors.lol/?url=';
     let userImageData = null;
     let selectedStyle = null;
     let selectedColor = 'natural';
@@ -459,7 +461,7 @@
           }
         };
 
-        // Create prediction via allorigins proxy
+        // Create prediction via CORS proxy
         const createUrl = PROXY_BASE + encodeURIComponent('https://api.replicate.com/v1/predictions');
         const createRes = await fetch(createUrl, {
           method: 'POST',
@@ -505,7 +507,7 @@
         resultImg.style.display = 'block';
         actions.style.display = 'block';
       } catch (err) {
-        errorEl.textContent = 'Error: ' + err.message;
+        errorEl.textContent = 'Error: ' + (err.message || 'Failed to fetch. The CORS proxy may be blocked or the request is too large. Try a smaller photo.');
         errorEl.style.display = 'block';
       } finally {
         loading.style.display = 'none';
